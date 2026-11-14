@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>職業錨問卷</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm, reflective self-assessment for a career-coaching session
+   IDEA: the course answer sheet (40 boxes, 8 columns) that totals itself
+   PICTURE: the 40 statements with 1–6 scales, then a ranked bar of the 8 anchors
+   COLOUR and TYPE: oxford blue band, white panels, magenta for picks and result; Red Hat Display numerals + Noto Sans TC
+   LAYOUT: one column in three steps — answer, pick top 3, see result */
+:root{color-scheme:light dark;
+--bg:light-dark(#eef1f7,#070f26);--panel:light-dark(#fff,#0f1b3d);--ink:light-dark(#121a2e,#e8ecf6);
+--mute:light-dark(#5a6378,#9aa5c0);--line:light-dark(#d9deea,#1f2c52);--band:#0b1f4b;--acc:#e0115f;--sel:light-dark(#fde8f0,#3a1030)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Noto Sans TC",system-ui,sans-serif;overflow-x:clip}
+.top{background:var(--band);color:#fff;padding:clamp(28px,5vw,56px) max(5vw,16px) clamp(24px,4vw,40px)}
+.wrap{max-width:760px;margin:0 auto}
+h1{font:800 clamp(30px,5vw,44px)/1.1 "Red Hat Display","Noto Sans TC",sans-serif;margin:0 0 14px}
+.top p{margin:0 0 10px;max-width:62ch;opacity:.92}
+.scale{display:grid;grid-template-columns:repeat(4,auto);gap:6px 18px;font-size:14px;opacity:.9;margin:14px 0 4px;justify-content:start}
+.scale b{font:800 15px "Red Hat Display",sans-serif;color:#ff8fb8;margin-right:4px}
+.who{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:18px}
+.who label{font-size:13px;opacity:.8;display:block;margin-bottom:4px}
+.who input{width:100%;font-size:16px;font-family:inherit;padding:10px 12px;border-radius:8px;border:1px solid #2c4580;background:#13295e;color:#fff;min-height:44px}
+.bar{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding:10px max(5vw,16px)}
+.bar .wrap{display:flex;align-items:center;gap:14px}
+.track{flex:1;height:8px;background:var(--line);border-radius:9px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--acc);transition:width .3s}
+.cnt{font:700 15px "Red Hat Display",sans-serif;white-space:nowrap}
+main{padding:24px max(5vw,16px) 40px}
+h2.st{font:800 24px/1.2 "Red Hat Display","Noto Sans TC",sans-serif;margin:8px 0 6px}
+.hint{color:var(--mute);margin:0 0 16px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 12px}
+.q.miss{box-shadow:0 0 0 2px var(--acc);border-color:var(--acc)}
+.q p{margin:0 0 12px;font-weight:500}
+.q p b{font:800 15px "Red Hat Display",sans-serif;color:var(--acc);margin-right:8px}
+.rate{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.rate label{position:relative}
+.rate input{position:absolute;opacity:0}
+.rate span{display:grid;place-items:center;min-height:44px;border:1px solid var(--line);border-radius:10px;font:700 17px "Red Hat Display",sans-serif;cursor:pointer;color:var(--mute)}
+.rate label:hover span{border-color:var(--acc)}
+.rate input:checked+span{background:var(--acc);border-color:var(--acc);color:#fff}
+.rate input:focus-visible+span{outline:3px solid var(--acc);outline-offset:2px}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-top:4px}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+button{font:700 16px "Noto Sans TC",sans-serif;min-height:48px;padding:0 22px;border-radius:10px;border:0;cursor:pointer}
+.pri{background:var(--acc);color:#fff}.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.msg{color:var(--acc);font-weight:700;margin:10px 0 0;min-height:1.6em}
+#pick{display:none;padding-top:8px}#pick.on{display:block}
+.pk{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;min-height:44px}
+.pk input{margin-top:5px;width:20px;height:20px;accent-color:var(--acc);flex:none}
+.pk:has(input:checked){background:var(--sel);border-color:var(--acc)}
+.pk .sc{margin-left:auto;font:800 17px "Red Hat Display",sans-serif;white-space:nowrap;color:var(--mute)}
+.pk:has(input:checked) .sc{color:var(--acc)}
+.pc{font:700 16px "Red Hat Display","Noto Sans TC",sans-serif;margin:4px 0 12px}
+#res{display:none;background:var(--band);color:#fff;padding:clamp(28px,5vw,56px) max(5vw,16px)}
+#res.on{display:block}
+#res h2{font:800 clamp(26px,4vw,36px)/1.2 "Red Hat Display","Noto Sans TC",sans-serif;margin:0 0 6px;text-wrap:balance}
+#res .sub{opacity:.85;margin:0 0 22px;max-width:62ch}
+.rows{margin-bottom:26px}
+.row{display:grid;grid-template-columns:118px minmax(0,1fr) 52px;gap:12px;align-items:center;padding:7px 0}
+.row .nm{font-weight:700;font-size:15px;white-space:nowrap}
+.row .nm small{font:800 13px "Red Hat Display",sans-serif;opacity:.7;margin-right:6px}
+.row .tr{height:22px;background:#13295e;border-radius:6px;overflow:hidden}
+.row .bf{height:100%;background:#4a6ad8;border-radius:6px;transition:width .6s}
+.row.top .bf{background:var(--acc)}
+.row .v{font:800 17px "Red Hat Display",sans-serif;text-align:right}
+.scroll{overflow-x:auto;margin-bottom:8px}
+.sheet{border-collapse:collapse;width:100%;min-width:560px;background:var(--panel);color:var(--ink);border-radius:12px;overflow:hidden;font-size:14px}
+.sheet th,.sheet td{border:1px solid var(--line);padding:8px 6px;text-align:center}
+.sheet th{background:light-dark(#dfe5f2,#16244d);font:800 14px "Red Hat Display",sans-serif}
+.sheet td small{display:block;color:var(--mute);font-size:12px}
+.sheet td b{font:800 16px "Red Hat Display",sans-serif}
+.sheet td.w{background:var(--sel)}.sheet td.w b{color:var(--acc)}
+.sheet tr.t td{font:800 15px "Red Hat Display",sans-serif;background:light-dark(#f2f4fa,#13224a)}
+.cap{font-size:13px;opacity:.75;margin:0 0 22px}
+.desc{display:grid;gap:10px;margin-bottom:22px}
+.desc div{background:#13295e;border-radius:12px;padding:14px 16px}
+.desc b{display:block;margin-bottom:2px}
+.note{font-size:14px;opacity:.8;max-width:66ch}
+#res .sec{color:#fff;border-color:#2c4580}
+@media(max-width:600px){.who{grid-template-columns:1fr}.scale{grid-template-columns:auto auto}.q{padding:14px 12px}.rate{gap:4px}.row{grid-template-columns:92px minmax(0,1fr) 44px;gap:8px}.row .nm small{display:none}}
+@media(prefers-reduced-motion:reduce){.fill,.row .bf{transition:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>職業錨問卷</h1>
+  <p>這份問卷幫助你思索自己的能力、動機和價值觀。單靠這個測試可能無法完全反映你真正的職業錨，還需要積極思考，並與諮詢師或夥伴討論。</p>
+  <p>請盡可能真實且迅速地回答。除非很明確，否則不要選擇極端的答案，例如「從不 1」或「總是 6」。越符合就選越大的數字：</p>
+  <div class="scale"><span><b>1</b>完全不符合</span><span><b>2–3</b>偶爾這麼想</span><span><b>4–5</b>經常這麼想</span><span><b>6</b>完全符合</span></div>
+  <div class="who">
+    <div><label for="nm">姓名</label><input id="nm" autocomplete="name"></div>
+    <div><label for="dt">填寫日期</label><input id="dt" type="date"></div>
+  </div>
+</div></header>
+
+<div class="bar"><div class="wrap"><div class="track"><div class="fill" id="fill"></div></div><span class="cnt" id="cnt">0 / 40</span></div></div>
+
+<main><div class="wrap">
+  <h2 class="st">第一步：40 題作答</h2>
+  <p class="hint">依實際情況，每題選 1–6。</p>
+  <form id="f" novalidate></form>
+  <div class="acts"><button class="pri" id="go" type="button">下一步：挑出最符合的 3 題</button><button class="sec" id="clr" type="button">清除重填</button></div>
+  <p class="msg" id="msg" role="status"></p>
+
+  <section id="pick">
+    <h2 class="st">第二步：加權</h2>
+    <p class="hint">從下面給分較高的描述中，挑出與你日常想法最吻合的 3 題。這 3 題會在原本分數上各加 4 分（例如原本 5 分，調整後為 9 分）。</p>
+    <p class="pc" id="pc">已選 0 / 3</p>
+    <div id="pl"></div>
+    <div class="acts"><button class="sec" id="more" type="button">顯示全部題目</button><button class="pri" id="calc" type="button" disabled>看我的職業錨</button></div>
+  </section>
+</div></main>
+
+<section id="res" aria-live="polite"><div class="wrap">
+  <h2 id="rt">你的職業錨</h2>
+  <p class="sub" id="rs"></p>
+  <div class="rows" id="rows"></div>
+  <div class="scroll"><table class="sheet" id="sheet"></table></div>
+  <p class="cap">答題紙：每格上方是題號、下方是分數；粉色格子是加權 +4 的題目。最後兩列是各欄總分與平均分（總分 ÷ 5）。</p>
+  <div class="desc" id="desc"></div>
+  <p class="note">平均分最高的那一欄，代表最符合你「真實自我」的職業錨。這是自我評價的起點，建議再和諮詢師或夥伴一起討論。</p>
+  <div class="acts"><button class="sec" id="cp" type="button">複製結果文字</button><button class="sec" id="back" type="button">回到題目修改</button></div>
+  <p class="msg" id="cpm" style="color:#fff"></p>
+</div></section>
+
+<script>
+{
+const Q=["我希望做我擅長的工作，這樣我的專業建議可以不斷被採納。","當我整合並管理其他人的工作時，我非常有成就感。","我希望我的工作，能讓我用自己的方式，按自己的計畫去開展。","對我而言，安定與穩定比自由和自主更重要。","我一直在尋找可以讓我創立自己事業（公司）的創意（點子）。","我認為只有對社會做出真正貢獻的職業，才算是成功的職業。","在工作中，我希望去解決那些有挑戰性的問題，並且勝出。","我寧願離開公司，也不願從事需要個人和家庭做出一定犧牲的工作。",
+"對我來說將技術和專業水準，發展到一個更具有競爭力的層次，這是成功職業的必要條件。","我希望能夠管理一個大的公司（組織），我的決策將會影響許多人。","如果工作允許自由的決定，自己的工作內容、計畫、過程時，我會非常滿意。","如果工作的結果，使我喪失了自己在組織中的安全穩定感，我寧願離開這個工作崗位。","對我而言，創辦自己的公司，比在其他的公司中爭取一個高的管理位置，更有意義。","我的職業滿足，來自於我可以用自己的才能，去為他人提供服務。","我認為職業的成就感，來自於克服自己面臨的非常有挑戰性的困難。","我希望我的職業，能夠兼顧個人、家庭和工作的需要。",
+"對我而言，在我喜歡的專業領域內做資深專家比總經理，更具有吸引力。","只有在我成為公司的總經理後，我才認為我的職業人生是成功的。","成功的職業，應該允許我有完全的自主與自由。","我願意在能給我安全感、穩定感的公司中工作。","當通過自己的努力或想法完成工作時，我的工作成就感最強。","對我而言，利用自己才能使這個世界變得更適合生活或居住，比爭取一個高的管理職位更重要。","當我解決了看上去不可能解決的問題，或者在必輸無疑的競賽中勝出，我會非常有成就感。","我認為只有很好的平衡個人、家庭、事業三者的關係，生活才能算是成功的。",
+"我寧願離開公司，也不願頻繁接受，不屬於我專業領域的工作。","對我而言，做一個全面管理者，比在我喜歡的專業領域內，做資深專家，更有吸引力。","對我而言，用我自己的方式不受約束的完成工作，比安全、穩定更加重要。","只有當我的收入和工作有保障時，我才會對工作感到滿意。","在我的職業生涯中，如果我能成功地創造，或實現完全屬於自己的產品或點子，我會感到非常成功。","我希望從事對人類和社會，真正有貢獻的工作。","我希望工作中有很多的機會，可以不斷挑戰我解決問題的能力（或競爭力）。","能很好地平衡個人生活與工作，比達到一個高的管理職位更重要。",
+"在工作中能經常用到，我特別的技巧和才能，我會感到特別滿意。","我寧願離開公司，也不願意接受，主管讓我離開有充分管理權的工作。","我寧願離開公司，也不願意接受，約束我自由和自主控制權的工作。","我希望有一份讓我有安全感和穩定感的工作。","我夢想著創建屬於自己的事業。","如果主管限制我為他人提供說明或服務的工作，我寧願離開公司。","去處理那些幾乎無法解決的難題，比獲得一個高的管理職位更有意義。","我一直在尋找一份，能最小化個人和家庭之間衝突的工作。"];
+const A=[["TF","技術職能","重視在專業領域持續精進，成為被倚重的專家。"],["GM","管理","喜歡整合他人的工作、承擔整體責任，決策能影響組織。"],["AU","自主獨立","希望用自己的方式和節奏工作，不受過多規範約束。"],["SE","安全穩定","重視工作與收入的保障，以及可預期的未來。"],["EC","創造創業","想創造屬於自己的事業、產品或點子。"],["SV","服務奉獻","希望用自己的才能幫助他人、對社會有貢獻。"],["CH","挑戰","被困難的問題與競爭吸引，享受克服看似不可能的事。"],["LS","生活","希望工作能和個人、家庭的需要取得平衡。"]];
+const $=id=>document.getElementById(id),f=$("f");
+let a=Array(40).fill(null),pk=[],showAll=false,txt="";
+f.innerHTML=Q.map((q,i)=>`<fieldset class="q" id="q${i}" style="border-style:solid"><legend style="float:left;width:100%;padding:0"><p><b>${i+1}</b>${q}</p></legend><div class="rate" style="clear:both">${[1,2,3,4,5,6].map(v=>`<label><input type="radio" name="a${i}" value="${v}" aria-label="${v} 分"><span>${v}</span></label>`).join("")}</div><div class="ends"><span>完全不符合</span><span>完全符合</span></div></fieldset>`).join("");
+const save=()=>{try{localStorage.setItem("anchor",JSON.stringify({a,pk,n:$("nm").value,d:$("dt").value}))}catch(e){}};
+const prog=()=>{const n=a.filter(x=>x!==null).length;$("fill").style.width=n/40*100+"%";$("cnt").textContent=n+" / 40"};
+try{const s=JSON.parse(localStorage.getItem("anchor")||"null");if(s){a=s.a;pk=s.pk||[];$("nm").value=s.n||"";$("dt").value=s.d||"";a.forEach((v,i)=>{if(v!==null){const r=f.querySelector(`input[name=a${i}][value="${v}"]`);if(r)r.checked=true}})}}catch(e){a=Array(40).fill(null);pk=[]}
+if(!$("dt").value)$("dt").value=new Date().toLocaleDateString("sv");
+prog();
+f.addEventListener("change",e=>{const i=+e.target.name.slice(1);a[i]=+e.target.value;$("q"+i).classList.remove("miss");pk=pk.filter(x=>a[x]!==null);prog();save();if($("pick").classList.contains("on"))renderPick()});
+$("nm").addEventListener("input",save);$("dt").addEventListener("change",save);
+const order=()=>a.map((v,i)=>i).sort((x,y)=>a[y]-a[x]||x-y);
+function renderPick(){
+  const o=order(),cut=a[o[Math.min(9,o.length-1)]];
+  const list=showAll?o:o.filter(i=>a[i]>=cut||pk.includes(i));
+  $("pl").innerHTML=list.map(i=>`<label class="pk"><input type="checkbox" value="${i}"${pk.includes(i)?" checked":""}><span><b>${i+1}.</b> ${Q[i]}</span><span class="sc">${a[i]} 分</span></label>`).join("");
+  $("more").textContent=showAll?"只顯示高分題目":"顯示全部題目";
+  $("pc").textContent=`已選 ${pk.length} / 3`;$("calc").disabled=pk.length!==3;
+}
+$("pl").addEventListener("change",e=>{const i=+e.target.value;if(e.target.checked){if(pk.length>=3){e.target.checked=false;$("pc").textContent="已選 3 / 3，請先取消一題再換";return}pk.push(i)}else pk=pk.filter(x=>x!==i);save();renderPick()});
+$("more").addEventListener("click",()=>{showAll=!showAll;renderPick()});
+$("go").addEventListener("click",()=>{
+  const miss=a.map((v,i)=>v===null?i:-1).filter(i=>i>=0);
+  document.querySelectorAll(".q").forEach(q=>q.classList.remove("miss"));
+  if(miss.length){miss.forEach(i=>$("q"+i).classList.add("miss"));$("msg").textContent=`還有 ${miss.length} 題未作答：第 ${miss.map(i=>i+1).join("、")} 題`;$("q"+miss[0]).scrollIntoView({behavior:"smooth",block:"center"});return}
+  $("msg").textContent="";$("pick").classList.add("on");renderPick();$("pick").scrollIntoView({behavior:"smooth"});
+});
+$("calc").addEventListener("click",()=>{
+  if(pk.length!==3)return;
+  const sc=a.map((v,i)=>v+(pk.includes(i)?4:0));
+  const tot=A.map((_,c)=>[0,1,2,3,4].reduce((s,r)=>s+sc[r*8+c],0)),avg=tot.map(t=>t/5);
+  const mx=Math.max(...avg),tops=A.map((_,c)=>c).filter(c=>avg[c]===mx),f1=v=>v.toFixed(1);
+  $("rt").textContent=($("nm").value?$("nm").value+"，":"")+"你的職業錨是 "+tops.map(c=>A[c][0]+" "+A[c][1]+"型").join("、");
+  $("rs").textContent=tops.map(c=>A[c][2]).join(" ");
+  const rk=A.map((_,c)=>c).sort((x,y)=>avg[y]-avg[x]||x-y);
+  $("rows").innerHTML=rk.map(c=>`<div class="row${tops.includes(c)?" top":""}"><span class="nm"><small>${A[c][0]}</small>${A[c][1]}</span><div class="tr"><div class="bf" style="width:${avg[c]/mx*100}%"></div></div><span class="v">${f1(avg[c])}</span></div>`).join("");
+  $("sheet").innerHTML=`<thead><tr>${A.map(x=>`<th>${x[0]}<br><small style="font-weight:500">${x[1]}</small></th>`).join("")}</tr></thead><tbody>`+[0,1,2,3,4].map(r=>`<tr>${A.map((_,c)=>{const i=r*8+c;return `<td class="${pk.includes(i)?"w":""}"><small>${String(i+1).padStart(2,"0")}</small><b>${sc[i]}</b></td>`}).join("")}</tr>`).join("")+`<tr class="t">${tot.map(t=>`<td>${t}</td>`).join("")}</tr><tr class="t">${avg.map(v=>`<td>${f1(v)}</td>`).join("")}</tr></tbody>`;
+  $("desc").innerHTML=rk.slice(0,3).map(c=>`<div><b>${A[c][0]} ${A[c][1]}型　平均 ${f1(avg[c])}</b>${A[c][2]}</div>`).join("");
+  txt=`職業錨問卷結果\n姓名：${$("nm").value||"—"}　日期：${$("dt").value}\n作答：${a.join(",")}\n加權題目：${pk.map(i=>i+1).sort((x,y)=>x-y).join("、")}\n`+rk.map(c=>`${A[c][0]} ${A[c][1]}：總分 ${tot[c]}，平均 ${f1(avg[c])}`).join("\n")+`\n職業錨：${tops.map(c=>A[c][0]+" "+A[c][1]).join("、")}`;
+  $("res").classList.add("on");$("cpm").textContent="";$("res").scrollIntoView({behavior:"smooth"});
+});
+$("clr").addEventListener("click",()=>{const b=$("clr");if(b.dataset.c!=="1"){b.dataset.c="1";b.textContent="再按一次確認清除";setTimeout(()=>{b.dataset.c="";b.textContent="清除重填"},3000);return}
+  f.reset();a=Array(40).fill(null);pk=[];$("nm").value="";b.dataset.c="";b.textContent="清除重填";$("pick").classList.remove("on");$("res").classList.remove("on");$("msg").textContent="";document.querySelectorAll(".q").forEach(q=>q.classList.remove("miss"));prog();save();window.scrollTo({top:0})});
+$("cp").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(txt);$("cpm").textContent="已複製，可貼到 LINE 或筆記。"}catch(e){$("cpm").textContent="無法自動複製，請手動選取上方表格。"}});
+$("back").addEventListener("click",()=>$("q0").scrollIntoView({behavior:"smooth"}));
+}
+</script>
+</body>
+</html>
